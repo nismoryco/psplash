@@ -204,6 +204,7 @@ main (int argc, char** argv)
   int        pipe_fd, i = 0, angle = 0, ret = 0;
   PSplashFB *fb;
   bool       disable_console_switch = FALSE;
+  bool       disable_progress_bar = FALSE;
   
   signal(SIGHUP, psplash_exit);
   signal(SIGINT, psplash_exit);
@@ -217,6 +218,12 @@ main (int argc, char** argv)
 	  continue;
 	}
 
+      if (!strcmp(argv[i],"-p") || !strcmp(argv[i],"--no-progress"))
+        {
+	  disable_progress_bar = TRUE;
+	  continue;
+	}
+
       if (!strcmp(argv[i],"-a") || !strcmp(argv[i],"--angle"))
         {
 	  if (++i >= argc) goto fail;
@@ -226,7 +233,7 @@ main (int argc, char** argv)
       
     fail:
       fprintf(stderr, 
-	      "Usage: %s [-n|--no-console-switch][-a|--angle <0|90|180|270>]\n", 
+	      "Usage: %s [-n|--no-console-switch][-a|--angle <0|90|180|270>][-p|--no-progress]\n", 
 	      argv[0]);
       exit(-1);
     }
@@ -278,7 +285,8 @@ main (int argc, char** argv)
 			 POKY_IMG_RLE_PIXEL_DATA);
 
   /* Draw progress bar border */
-  psplash_fb_draw_image (fb, 
+  if (!disable_progress_bar) {
+  	psplash_fb_draw_image (fb, 
 			 (fb->width  - BAR_IMG_WIDTH)/2, 
 			 fb->height - (fb->height/6), 
 			 BAR_IMG_WIDTH,
@@ -287,7 +295,8 @@ main (int argc, char** argv)
 			 BAR_IMG_ROWSTRIDE,
 			 BAR_IMG_RLE_PIXEL_DATA);
 
-  psplash_draw_progress (fb, 0);
+  	psplash_draw_progress (fb, 0);
+  }
 
   psplash_draw_msg (fb, MSG);
 
